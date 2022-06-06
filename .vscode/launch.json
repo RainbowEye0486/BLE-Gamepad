@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "preLaunchTask": "preRun",
+      "type": "cppdbg",
+      "name": "ESP32 Openocd",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/build", 
+      "program": "${workspaceFolder}/build/main.elf",
+      "miDebuggerPath": "/home/hastur/.espressif/tools/xtensa-esp32-elf/esp-2021r2-patch3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gdb",
+      "setupCommands": [
+        { "text": "target remote 127.0.0.1:3333" },
+        { "text": "set remote hardware-watchpoint-limit 2" },
+        { "text": "monitor reset halt" },
+        { "text": "flushregs" }
+      ]
+    }
+  ]
+}

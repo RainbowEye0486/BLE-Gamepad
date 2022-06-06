@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "preRun", 
+            "type": "shell",
+            "linux":{
+                "command": "clear & openocd -f board/esp32-wrover-kit-3.3v.cfg & exit"
+            }
+        }
+    ]
+}

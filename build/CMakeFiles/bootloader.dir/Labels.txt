@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/hastur/esp/esp32-Ble-Gamepad/build/CMakeFiles/bootloader
+/home/hastur/esp/esp32-Ble-Gamepad/build/CMakeFiles/bootloader.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/CMakeFiles/bootloader-complete.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/hastur/esp/esp32-Ble-Gamepad/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
