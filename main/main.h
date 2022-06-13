@@ -6,25 +6,26 @@ static const char *JOY_TAG = "[joystick]";
 static const char *MPU_TAG = "[mpu6050]";
 
 /* Debug flag */
-#define BLE_OPEN 0
+#define BLE_OPEN 1
 #define MPU_OPEN 0
-#define BTN_OPEN 1
-#define JOY_OPEN 0
+#define BTN_OPEN 0
+#define JOY_OPEN 1
+#define KEY_OPEN 1
 
 
 
-#define LED_GPIO        GPIO_NUM_2
-#define BUTTON_GPIO_X   GPIO_NUM_19
-#define BUTTON_GPIO_Y   GPIO_NUM_18
-#define BUTTON_GPIO_A   GPIO_NUM_5
-#define BUTTON_GPIO_B   GPIO_NUM_17
-#define BUTTON_GPIO_L   GPIO_NUM_34
-#define BUTTON_GPIO_ZL  GPIO_NUM_39
+
+#define BUTTON_GPIO_X   GPIO_NUM_5
+#define BUTTON_GPIO_Y   GPIO_NUM_16
+#define BUTTON_GPIO_A   GPIO_NUM_17
+#define BUTTON_GPIO_B   GPIO_NUM_4
+#define BUTTON_GPIO_L   GPIO_NUM_32
+#define BUTTON_GPIO_ZL  GPIO_NUM_14
 #define BUTTON_GPIO_R   GPIO_NUM_23
-#define BUTTON_GPIO_ZR  GPIO_NUM_36
-#define BUTTON_GPIO_DU  GPIO_NUM_32
-#define BUTTON_GPIO_DD  GPIO_NUM_25
-#define BUTTON_GPIO_DL  GPIO_NUM_26
+#define BUTTON_GPIO_ZR  GPIO_NUM_19
+#define BUTTON_GPIO_DU  GPIO_NUM_33
+#define BUTTON_GPIO_DD  GPIO_NUM_26
+#define BUTTON_GPIO_DL  GPIO_NUM_25
 #define BUTTON_GPIO_DR  GPIO_NUM_27
 
 // Define adc joystick gpio number
@@ -32,12 +33,10 @@ static const char *MPU_TAG = "[mpu6050]";
 #define LJOY_CHANNEL_Y  ADC2_CHANNEL_4
 #define LJOY_GPIO_X     ADC2_CHANNEL_5_GPIO_NUM
 #define LJOY_GPIO_Y     ADC2_CHANNEL_4_GPIO_NUM
-#define LJOY_GPIO_BTN   GPIO_NUM_14
 #define RJOY_CHANNEL_X  ADC2_CHANNEL_2
 #define RJOY_CHANNEL_Y  ADC2_CHANNEL_3
 #define RJOY_GPIO_X     ADC2_CHANNEL_2_GPIO_NUM
 #define RJOY_GPIO_Y     ADC2_CHANNEL_3_GPIO_NUM
-#define RJOY_GPIO_BTN   GPIO_NUM_16
 
 
 // MPU
@@ -67,12 +66,11 @@ static const char *MPU_TAG = "[mpu6050]";
 
 #define GPIO_INPUT_PIN_SEL ((1ULL << BUTTON_GPIO_X) | (1ULL << BUTTON_GPIO_Y) | (1ULL << BUTTON_GPIO_A) | (1ULL << BUTTON_GPIO_B) \
                         | (1ULL << BUTTON_GPIO_R) | (1ULL << BUTTON_GPIO_L) | (1ULL << BUTTON_GPIO_ZL) | (1ULL << BUTTON_GPIO_ZR) \
-                        | (1ULL << BUTTON_GPIO_DU) | (1ULL << BUTTON_GPIO_DD) | (1ULL << BUTTON_GPIO_DL) | (1ULL << BUTTON_GPIO_DR) \
-                        | (1ULL << LJOY_GPIO_BTN) | (1ULL << RJOY_GPIO_BTN))
+                        | (1ULL << BUTTON_GPIO_DU) | (1ULL << BUTTON_GPIO_DD) | (1ULL << BUTTON_GPIO_DL) | (1ULL << BUTTON_GPIO_DR))
 
 
 #define ESP_INTR_FLAG_DEFAULT 0
-#define FADE_TIME 30000000
+#define FADE_TIME 3000000000
 
 #define LEVEL_HIGH 1
 #define LEVEL_LOW 0
@@ -81,7 +79,7 @@ static const char *MPU_TAG = "[mpu6050]";
 #define GPIO_AVALIABLE 64
 
 // Count down button event maximum value
-#define CNT_NUM 50
+#define CNT_NUM 20
 
 // Joystick max/min value
 #define JOY_MAX 32767

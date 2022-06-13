@@ -24,7 +24,7 @@ uint8_t output_data = 0;
 int32_t joy_val[4];
 int32_t joy_init[4];
 esp_err_t err;
-
+int64_t tStart, tEnd;
 
 static uint32_t send_period = 50;
 int cnt = 0;
@@ -51,14 +51,14 @@ QueueHandle_t xCastQueue;
 struct ring_buf rb;
 
 
-/* Turn on the default LED in the ESP32 board */
-static void configure_led(void)
-{
-    gpio_pad_select_gpio(LED_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_GPIO, LEVEL_HIGH);
-}
+// /* Turn on the default LED in the ESP32 board */
+// static void configure_led(void)
+// {
+//     gpio_pad_select_gpio(LED_GPIO);
+//     /* Set the GPIO as a push/pull output */
+//     gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
+//     gpio_set_level(LED_GPIO, LEVEL_HIGH);
+// }
 
 static void configure_gpio(void){
     
@@ -72,13 +72,6 @@ static void configure_gpio(void){
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
-
-    // io_conf.intr_type = GPIO_INTR_ANYEDGE;
-    // io_conf.pin_bit_mask = GPI_INPUT_PIN_SEL;
-    // io_conf.mode = GPIO_MODE_INPUT;
-    // io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    // io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    // gpio_config(&io_conf);
 
     //install gpio isr service
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
@@ -95,8 +88,6 @@ static void configure_gpio(void){
     gpio_isr_handler_add(BUTTON_GPIO_DD, gpio_isr_handler, (void*) BUTTON_GPIO_DD);
     gpio_isr_handler_add(BUTTON_GPIO_DL, gpio_isr_handler, (void*) BUTTON_GPIO_DL);
     gpio_isr_handler_add(BUTTON_GPIO_DR, gpio_isr_handler, (void*) BUTTON_GPIO_DR);
-    gpio_isr_handler_add(LJOY_GPIO_BTN, gpio_isr_handler, (void*) LJOY_GPIO_BTN);
-    gpio_isr_handler_add(RJOY_GPIO_BTN, gpio_isr_handler, (void*) RJOY_GPIO_BTN);
     
     vTaskDelay( 2 / portTICK_RATE_MS);
     printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
@@ -160,34 +151,29 @@ static void button_event(uint32_t gpio_num) {
     switch (port)
     {
     case BUTTON_GPIO_X:
-        btn_addr = BUTTON_4;
+        
+        btn_addr = BUTTON_3;//4
         break;
     case BUTTON_GPIO_Y:
-        btn_addr = BUTTON_5;
+        btn_addr = BUTTON_4;//5
         break;
     case BUTTON_GPIO_A:
-        btn_addr = BUTTON_1;
+        btn_addr = BUTTON_1;//1
         break;
     case BUTTON_GPIO_B:
-        btn_addr = BUTTON_2;
+        btn_addr = BUTTON_2;//2
         break;
     case BUTTON_GPIO_L:
-        btn_addr = BUTTON_7;
+        btn_addr = BUTTON_5;//7
         break;
     case BUTTON_GPIO_R:
-        btn_addr = BUTTON_8;
+        btn_addr = BUTTON_6;//8
         break;
     case BUTTON_GPIO_ZL:
-        btn_addr = BUTTON_9;
+        btn_addr = BUTTON_7;//9
         break;
     case BUTTON_GPIO_ZR:
-        btn_addr = BUTTON_10;
-        break;
-    case LJOY_GPIO_BTN:
-        btn_addr = BUTTON_14;
-        break;
-    case RJOY_GPIO_BTN:
-        btn_addr = BUTTON_15;
+        btn_addr = BUTTON_8;//10
         break;
     case BUTTON_GPIO_DU:
         if(gpio_get_level((gpio_num_t) gpio_num) == LEVEL_LOW){
@@ -243,7 +229,66 @@ static void button_event(uint32_t gpio_num) {
         
             ESP_LOGI(BUTTON_TAG, " button [%d] released", btn_addr);
         }
-    }  
+    }
+    else {
+        if (dpad_status[0] && !dpad_status[1] && !dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad UP");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_UP);
+            }
+        }
+        else if (!dpad_status[0] && dpad_status[1] && !dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad DOWN");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_DOWN);
+            }
+        }
+        else if (!dpad_status[0] && !dpad_status[1] && dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad LEFT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_LEFT);
+            }
+        }
+        else if (!dpad_status[0] && !dpad_status[1] && !dpad_status[2] && dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad RIGHT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_RIGHT);
+            }
+        }
+        else if (dpad_status[0] && !dpad_status[1] && dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad UP-LEFT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_UP_LEFT);
+            }
+        }
+        else if (dpad_status[0] && !dpad_status[1] && !dpad_status[2] && dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad UP-RIGHT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_UP_RIGHT);
+            }
+        }
+        else if (!dpad_status[0] && dpad_status[1] && dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad DOWN-LEFT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_DOWN_LEFT);
+            }
+        }
+        else if (!dpad_status[0] && dpad_status[1] && !dpad_status[2] && dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad DOWN-RIGHT");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_DOWN_RIGHT);
+            }
+        }
+        else if (!dpad_status[0] && !dpad_status[1] && !dpad_status[2] && !dpad_status[3]) {
+            ESP_LOGI(BUTTON_TAG, " D-pad CENTERED");
+            if (BLE_OPEN) {
+                bleGamepad.setHat1(DPAD_CENTERED);
+            }
+        }
+    }
+
+    // reset timer
+    tStart = esp_timer_get_time();
 }
 
 /* Task that resume by interrupt, and will send message to PC for a while */
@@ -255,7 +300,7 @@ void vEventSender(void *pvParameters){
     adc2_get_raw( RJOY_CHANNEL_X, width, &joy_init[2]);
     adc2_get_raw( RJOY_CHANNEL_Y, width, &joy_init[3]);
 
-    int64_t tStart, tEnd;
+    
     tStart = esp_timer_get_time();
     
     while(1){
@@ -265,7 +310,7 @@ void vEventSender(void *pvParameters){
         
         if(!bleGamepad.isConnected() && BLE_OPEN) {
             ESP_LOGW(SEND_TAG, "Device waits for reconnected...");
-            vTaskDelay(1000 / portTICK_RATE_MS);
+            vTaskDelay(2000 / portTICK_RATE_MS);
             continue;
         }
             
@@ -278,13 +323,20 @@ void vEventSender(void *pvParameters){
         for(int i = 0; i < 4; i++) {
             joy_val[i] = norm_joy(joy_val[i], joy_init[i]);
         }
-        ESP_LOGI(JOY_TAG, "LX: [%d] LY: [%d] RX: [%d] RY: [%d]", joy_val[0], joy_val[1], joy_val[2], joy_val[3] );
+        if(JOY_OPEN) {
+            ESP_LOGI(JOY_TAG, "LX: [%d] LY: [%d] RX: [%d] RY: [%d]", joy_val[0], joy_val[1], joy_val[2], joy_val[3] );
+            if (BLE_OPEN) {
+                bleGamepad.setLeftThumb(joy_val[0], joy_val[1]);
+                bleGamepad.setRightThumb(joy_val[2], joy_val[3]);
+                // bleGamepad.setLeftTrigger(joy_val[2]);
+            }
+        }
 
 
         
         // Into light sleep mode
         if(tEnd - tStart > FADE_TIME) {
-            gpio_set_level(LED_GPIO, LEVEL_LOW);
+            //gpio_set_level(LED_GPIO, LEVEL_LOW);
             ESP_LOGI(SEND_TAG, "Time is up, into deep sleeping mode.....");
             
             vTaskDelay(50 / portTICK_RATE_MS);
@@ -365,10 +417,8 @@ void vInterrupt(void *pvParameter) {
 
     ESP_LOGI(BUTTON_TAG, "Start button task. ");
 
-
     while(1) {
-        
-        
+             
         tNow = esp_timer_get_time();
 
         // Clean up all the queue element
@@ -376,7 +426,7 @@ void vInterrupt(void *pvParameter) {
             // Do not block if receive no data
             receive_success = xQueueReceive(xCastQueue, &gpio_num, ( TickType_t ) 0 );
             if(receive_success == pdTRUE) {
-                ESP_LOGI(BUTTON_TAG, " Receive gpio number %d", gpio_num); 
+                // ESP_LOGI(BUTTON_TAG, " Receive gpio number %d", gpio_num); 
                 if (btn_count[gpio_num] == 0) {
                     // First receive event, record current time
                     btn_count[gpio_num] = esp_timer_get_time();
@@ -389,7 +439,7 @@ void vInterrupt(void *pvParameter) {
             }
             else {
                 // Queue empty
-                ESP_LOGW(BUTTON_TAG, "This statement cannot happen");
+                ESP_LOGE(BUTTON_TAG, "This statement cannot happen");
                 break;
             }
         }
@@ -401,6 +451,8 @@ void vInterrupt(void *pvParameter) {
                 // Judge event happend and press/release button
                 btn_count[i] = 0;
                 button_event(i);
+                if(BLE_OPEN)
+                    bleGamepad.sendReport();
             }
             else if(btn_count[i] == 0) {
                 rest_cnt++;
@@ -469,10 +521,10 @@ extern "C" void app_main(void)
     xCastQueue = xQueueCreate(16, sizeof(struct b_event *));
 
     // Task Create
-    if(BLE_OPEN) {
+    
         status = xTaskCreate(vEventSender, "EventSender", 8198, NULL, 3, &senderHandle);
         configASSERT(status);
-    }
+    
     if(BTN_OPEN) {
         status = xTaskCreate(vInterrupt, "Interrupt test", 4096, NULL, 3, &btnHandle);
         configASSERT(status);
@@ -483,7 +535,7 @@ extern "C" void app_main(void)
     }
 
     // Turn on the LED to check if system worked
-    configure_led();
+    //configure_led();
     ESP_LOGI(MAIN_TAG, "System Ready!");
 }
 
@@ -491,9 +543,9 @@ static int32_t norm_joy(int32_t raw, int32_t center) {
     if(raw > (center + 100) && (raw < center - 100)) {
         return 0;
     }else if(raw < 100) {
-        return -JOY_MAX;
-    }else if(raw > 4000) {
         return JOY_MAX;
+    }else if(raw > 3500) {
+        return -JOY_MAX;
     }
     else if(center < 500) {
         // not connect button
@@ -519,7 +571,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     
     xQueueSendFromISR( xCastQueue, (void *)&gpio_num, &xHigherPriorityTaskWoken);
     xSemaphoreGiveFromISR(sleep_sem, &xHigherPriorityTaskWoken);
-    gpio_set_level(LED_GPIO, LEVEL_HIGH);
+    //gpio_set_level(LED_GPIO, LEVEL_HIGH);
 
     if( xHigherPriorityTaskWoken )
     {
